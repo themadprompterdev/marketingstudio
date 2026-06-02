@@ -10,11 +10,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - **Critical Execution Contract** header at the top of SKILL.md with explicit "MUST read first, every time" instructions to prevent agents from improvising the workflow from vague memory
 - Self-check questions agents should run before every response in a Marketing Studio workflow
-- Verbatim-required intake block in Phase 1 with explicit "do not modify, do not add preamble, do not improvise" instructions
-- Forbidden behaviors list for Phase 1 to prevent the most common improvisation drift (asking "what's the vibe" instead of the structured 7 questions, skipping the VO script question, skipping the reference image question, etc.)
+- **Sequential intake** in Phase 1 — questions are now asked one at a time, conversationally, instead of as a single wall of 7 questions. Feels like a creative director conducting an intake, not a customer service form.
+- Power-user escape hatch — if user dumps a complete brief upfront, skip the sequential intake entirely and move to Phase 2
+- Forbidden behaviors list for Phase 1 to prevent the most common improvisation drift (asking "what's the vibe" instead of the structured questions, skipping the VO script question, skipping the reference image question, etc.)
+- Updated calibration example at the bottom of SKILL.md to demonstrate the sequential intake pattern
 
 ### Why
-Real-world deployment revealed that agents with the skill installed would acknowledge the skill exists but then improvise their own workflow from vague memory of previous Marketing Studio sessions. The skill was being "read as reference" instead of "executed as procedure." This release adds aggressive control-claiming language to ensure the skill is followed step-by-step on every invocation.
+Real-world deployment revealed two issues:
+1. Agents with the skill installed would acknowledge the skill exists but then improvise their own workflow from vague memory of previous Marketing Studio sessions. The skill was being "read as reference" instead of "executed as procedure." The Critical Execution Contract fixes this.
+2. The original all-at-once intake (7 questions in one message) felt like a form rather than a conversation. On Discord and mobile, it was a wall of text that was easy to lose track of. Sequential intake feels native and lets the agent adapt based on each answer.
 
 ## [1.1.0] — 2026-06-01
 

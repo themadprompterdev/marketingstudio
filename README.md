@@ -113,13 +113,22 @@ The skill responds with the 7-question intake. From there, the workflow runs pha
 ```
 You: hey I have a new Marketing Studio project for you
 
-Skill: [delivers 7-question intake]
+Skill: Brand or business name + website URL if there is one?
 
-You: Brand is Lumi Skincare, lumiskincare.com. New vitamin C serum. 
-Audience mid-twenties women on Meta/TikTok. Need creator generated. 
-Tagline: "Wake up your skin." UGC.
+You: Lumi Skincare, lumiskincare.com
 
-Skill: [plans, generates creator reference via Soul 2.0]
+Skill: Got it. What's the product or video idea?
+
+You: New vitamin C serum launch.
+
+Skill: Solid. Who's the audience and where are they seeing this?
+
+You: Mid-twenties women on Meta and TikTok.
+
+[...sequential intake continues — one question at a time, conversational...]
+
+Skill: [delivers Phase 2 plan after intake complete]
+[generates creator reference via Soul 2.0]
 [delivers Marketing Studio prompt with anatomy block]
 
 You: confirm, run it.
@@ -128,6 +137,8 @@ Skill: [creates product in Marketing Studio with your uploaded shots]
 [submits UGC generation with the prompt + product + creator avatar]
 [returns finished video with assessment + next-step options]
 ```
+
+**Power-user escape hatch:** If you dump a complete brief in your first message (brand + product + audience + mode + tagline + references), the skill skips the sequential intake and moves directly to planning. Sequential is the default; the dump-everything pattern still works for high-velocity workflows.
 
 ### Shortcuts
 
@@ -212,7 +223,7 @@ Open an issue first if it's a bigger change so we can align on direction.
 
 ## Versioning
 
-**v1.2.0** — Critical Execution Contract header, verbatim intake enforcement, anti-improvisation guardrails
+**v1.2.0** — Critical Execution Contract header, sequential conversational intake, anti-improvisation guardrails
 
 See [CHANGELOG.md](CHANGELOG.md) for the full history.
 
