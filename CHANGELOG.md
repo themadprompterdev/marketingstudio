@@ -5,6 +5,17 @@ All notable changes to this skill will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.0] — 2026-06-01
+
+### Added
+- **Critical Execution Contract** header at the top of SKILL.md with explicit "MUST read first, every time" instructions to prevent agents from improvising the workflow from vague memory
+- Self-check questions agents should run before every response in a Marketing Studio workflow
+- Verbatim-required intake block in Phase 1 with explicit "do not modify, do not add preamble, do not improvise" instructions
+- Forbidden behaviors list for Phase 1 to prevent the most common improvisation drift (asking "what's the vibe" instead of the structured 7 questions, skipping the VO script question, skipping the reference image question, etc.)
+
+### Why
+Real-world deployment revealed that agents with the skill installed would acknowledge the skill exists but then improvise their own workflow from vague memory of previous Marketing Studio sessions. The skill was being "read as reference" instead of "executed as procedure." This release adds aggressive control-claiming language to ensure the skill is followed step-by-step on every invocation.
+
 ## [1.1.0] — 2026-06-01
 
 ### Added
@@ -35,5 +46,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Word count discipline (~40 word dialogue cap for UGC)
 - Seedance storyboard-as-reference behavior documentation
 
+[1.2.0]: https://github.com/themadprompterdev/marketingstudio/releases/tag/v1.2.0
 [1.1.0]: https://github.com/themadprompterdev/marketingstudio/releases/tag/v1.1.0
 [1.0.0]: https://github.com/themadprompterdev/marketingstudio/releases/tag/v1.0.0

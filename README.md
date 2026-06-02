@@ -212,7 +212,7 @@ Open an issue first if it's a bigger change so we can align on direction.
 
 ## Versioning
 
-**v1.1.0** — Higgsfield-exclusive routing, Hermes YAML frontmatter, 9-mode catalog
+**v1.2.0** — Critical Execution Contract header, verbatim intake enforcement, anti-improvisation guardrails
 
 See [CHANGELOG.md](CHANGELOG.md) for the full history.
 

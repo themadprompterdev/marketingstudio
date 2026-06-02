@@ -1,6 +1,6 @@
 {
   "name": "marketingstudio",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "End-to-end Higgsfield Marketing Studio ad production workflow. Trigger-activated. Orchestrates intake, strategic planning, reference image generation, prompt crafting, and video generation across all 9 Marketing Studio modes.",
   "author": "Mad Prompters",
   "license": "MIT",
