@@ -1,7 +1,7 @@
 ---
 name: marketingstudio
 description: Trigger-activated workflow that orchestrates end-to-end Higgsfield Marketing Studio ad production. Handles intake, strategic planning, reference image generation, prompt crafting, and video generation across all 9 Marketing Studio modes (TV Spot, UGC, Tutorial, Product Review, Unboxing, UGC Try-On, Pro Try-On, Hyper Motion, Wild Card). Activate when user says any variant of "hey I have a new marketing studio project for you" or signals a new ad production workflow.
-version: 1.2.0
+version: 1.3.0
 author: Mad Prompters
 required_mcp_servers:
   - higgsfield
@@ -167,43 +167,122 @@ Reference setup: [What we're using or generating]
 
 ---
 
-### PHASE 3 — INPUT ASSET GENERATION
+### PHASE 3 — INPUT ASSET GENERATION (3-STEP PIPELINE)
 
-Call Higgsfield's image generation tools (via the Higgsfield MCP server) to produce reference images. All image generation in this phase runs on Higgsfield models — Soul 2.0, Nano Banana, GPT Image, Seedream, Flux. Never call non-Higgsfield image providers in this workflow. Skip this phase entirely if the user provided their own references.
+Phase 3 is a **sequential 3-step pipeline** that produces a coordinated reference asset set. Each step builds on the previous one. Specific models are locked per step — DO NOT substitute.
 
-**What to generate by mode:**
-- **TV Spot:** Storyboard composite (Seedance reads multi-panel images as temporal sequences — this works in your favor) OR 3-5 separate environmental/product refs
-- **UGC:** Product hero shot + creator archetype reference image
-- **Hyper Motion:** 2-3 clean product shots from different angles
-- **Unboxing:** Product-in-package shot if not provided
-- **Virtual Try On (UGC or Pro):** Product on flat lay or clean background, 2-3 angles
-- **Wild Card:** One strong concept-anchor image
+**Model lock — Phase 3 (memorize):**
+- Step 3A (Item Reference Sheet): **Nano Banana Pro ONLY**
+- Step 3B (Scenery References): **Nano Banana Pro ONLY**
+- Step 3C (Storyboard Composite): **ChatGPT Image 2 (gpt-image-2) ONLY**
+- **NEVER use Soul 2.0 in Phase 3.** Soul 2.0 is for Phase 5B avatar generation only, when the mode requires an avatar.
+- **NEVER use text2image, generic models, or invent model names.**
 
-**Image generation prompt template:**
+Skip Phase 3 ENTIRELY if user provided complete reference assets during intake. If they provided some but not all, generate only what's missing.
 
-```
-[Subject with brand-specific details — colors, materials, branding]. [Background]. [Lighting]. [Camera angle]. [Aesthetic anchor]. Photo-realistic, high resolution, no text overlays, no watermarks, professional product photography.
-```
+---
 
-**Storyboard composite template (TV Spot only):**
+#### Step 3A — Item Reference Sheet (Nano Banana Pro)
 
-```
-Multi-panel storyboard layout showing [N] sequential cinematic shots for a [genre] commercial, arranged in a [grid]. Each panel labeled with timestamp and shot description. Panel 1: [shot]. Panel 2: [shot]. [Continue]. Photo-realistic still frames, cinematic color consistency, clean documentary storyboard aesthetic.
-```
+**Goal:** Generate a multi-angle product/item reference sheet so the item's visual identity is locked across every downstream asset.
 
-**Execute via the Higgsfield MCP server** (Soul 2.0, Nano Banana, GPT Image, Seedream, Flux are all Higgsfield models — pick the right one for the asset type). Soul 2.0 is best for character/lifestyle refs, Nano Banana for product shots and storyboards. Do not substitute non-Higgsfield image providers under any circumstances.
+**Inputs:** The user's product/item information from Phase 1 (brand name, product name, any user-uploaded item photos).
 
-Brief delivery when complete:
+**Output:** A multi-angle reference sheet showing the item from 4-6 angles — front, 3/4 left, 3/4 right, side profile, back, and at least one macro detail of the most distinctive feature.
+
+**Prompt template for Nano Banana Pro:**
 
 ```
-References ready. [Number] images generated:
-- [Image 1 description]
-- [Image 2 description]
-
-[Flag anything that needs regen]
-
-Moving to prompt + product setup.
+Multi-angle product reference sheet for [Brand Name] [product name]. Layout: 4-6 isolated product shots arranged in a clean grid on a pure white seamless background. Each shot shows the item from a different angle — front view, three-quarter left, three-quarter right, side profile, back view, and one macro close-up of the most distinctive feature ([specific feature from intake]). Studio softbox lighting from above, soft shadows beneath each item, hyper-realistic detail, sharp focus throughout, accurate brand colors and materials ([specific colors and materials from intake]). No text overlays, no watermarks, no branding text beyond what's on the actual product. Photo-realistic product photography reference sheet.
 ```
+
+**Tool call:** Higgsfield CLI with `nano_banana_pro` as the model. Use correct CLI syntax. Never invent flags. If unsure of syntax, run `higgsfield --help` or `higgsfield generate --help` first.
+
+**After 3A completes:** Capture the output file path/ID. Briefly acknowledge: "Item reference sheet ready. Generating scenery references now." Auto-proceed to Step 3B.
+
+---
+
+#### Step 3B — Scenery / Environmental References (Nano Banana Pro)
+
+**Goal:** Generate environmental/setting reference images that match the mood, location, and aesthetic anchor identified in Phase 2.
+
+**Inputs:** The aesthetic anchor and brand archetype from Phase 2 planning, plus any environmental cues from the user's intake answers.
+
+**Output:** 2-4 scenery/environment reference images that establish the world the spot lives in. Examples by archetype:
+- **Industrial Workwear:** Oilfield at dusk, underground mining tunnel, wet industrial yard at blue hour
+- **Luxury Hospitality:** Candlelit dining room, golden-hour terrace
+- **Boba/Gen Z Beverage:** Pastel modern café interior, sunny street with palm bokeh
+- **Kawaii Decor:** Cozy bedroom with fairy lights, warm reading nook
+- **Premium Skincare:** Soft marble bathroom counter, morning window light
+
+**Prompt template (run once per scenery image, 2-4 total):**
+
+```
+Cinematic environmental photograph of [specific setting description with time of day, weather, lighting], [specific atmospheric elements — dust, mist, neon glow, golden light, smoke, etc.], [human elements as silhouettes or background figures only — no foreground subjects], [aesthetic anchor reference matching Phase 2 archetype]. Photo-realistic, cinematic color grade, professional cinematography, no text, no watermarks, no foreground figures. Square 1:1 or 16:9 composition.
+```
+
+**Tool call:** Higgsfield CLI with `nano_banana_pro`. Run 2-4 separate generations for the distinct environments needed in the spot.
+
+**After 3B completes:** Capture all output paths/IDs. Acknowledge: "[N] scenery references ready. Building storyboard now." Auto-proceed to Step 3C.
+
+---
+
+#### Step 3C — Storyboard Composite Sequence (ChatGPT Image 2)
+
+**Goal:** Generate the multi-panel storyboard composite that maps the spot's shot sequence. This is the most important Phase 3 output — Seedance 2.0 reads multi-panel composites as **temporal sequences**, so the storyboard literally drives the final video's shot structure.
+
+**Inputs (BOTH REQUIRED — pass to ChatGPT Image 2 as input/reference images):**
+- The item reference sheet from Step 3A (so the product appears accurate and consistent in every panel)
+- The scenery references from Step 3B (so the environments match the established aesthetic)
+
+**Output:** A single multi-panel storyboard image showing the spot's shot sequence panel-by-panel.
+
+**Panel count rules:**
+- **15-second TV Spot / UGC:** 5-6 panels minimum (more than 4)
+- **6-second Hyper Motion:** 3-4 panels
+- **20-30 second extended spots:** 7-8 panels
+- Each panel includes a black header bar with panel number, timestamp range, and brief shot label
+
+**Prompt template for ChatGPT Image 2:**
+
+```
+Multi-panel storyboard layout for a [N]-second [genre] commercial for [Brand Name] [product]. Arrange [5-6] sequential cinematic shots in a clean grid layout.
+
+Use the attached item reference sheet to ensure the product appears accurate and consistent in every panel — same colors, same materials, same branding details.
+
+Use the attached scenery references to ensure environments match the established aesthetic in every panel.
+
+Each panel includes a small black header bar at the top with:
+- Panel number (1, 2, 3...)
+- Timestamp range (e.g., "0:00-0:03", "0:03-0:06")
+- Brief shot label (e.g., "OILFIELD ESTABLISHING", "BOOT SPLASH IMPACT")
+
+Panel sequence:
+Panel 1 (0:00-0:03): [specific shot description]
+Panel 2 (0:03-0:06): [specific shot description]
+Panel 3 (0:06-0:09): [specific shot description]
+Panel 4 (0:09-0:12): [specific shot description]
+Panel 5 (0:12-0:15): [Final hero CTA panel with brand logo end card]
+[Add panels as needed up to 6 for 15s, 7-8 for longer]
+
+Photo-realistic still frames in each panel, cinematic color consistency across all panels, clean documentary storyboard aesthetic with white outer background and panels separated by thin black dividers.
+```
+
+**Tool call:** Higgsfield CLI with `chatgpt_image_2` (verify exact model identifier via `higgsfield model list` — may also be registered as `gpt-image-2`). Pass the item reference sheet and scenery reference images as input/reference images using the CLI's image input flag.
+
+**After 3C completes:** Capture the storyboard output path/ID. Present ALL Phase 3 outputs to the user in one summary message:
+
+```
+Phase 3 assets ready:
+
+1. Item Reference Sheet — [filename/ID]
+2. Scenery References — [N files: filename1, filename2, ...]
+3. Storyboard Composite — [filename/ID]
+
+Review the storyboard before I move to prompt crafting. Look good, or adjustments needed before Phase 4?
+```
+
+**WAIT for user confirmation before moving to Phase 4.** This is the most important creative review gate in the workflow — the storyboard locks the visual narrative of the entire spot. If the user wants adjustments, regenerate the storyboard with revised panel descriptions (don't redo 3A or 3B unless their feedback affects the item or scenery).
 
 ---
 
@@ -238,18 +317,61 @@ Wait for user confirmation before Phase 5.
 
 Execute via Higgsfield MCP tools:
 
-**A. Create or load the product.** Check if it already exists in the user's Higgsfield library. If not, call the product creation tool with brand name, description, and reference images. Capture the product ID.
+**A. Create or load the product.** Check if it already exists in the user's Higgsfield library. If not, call the product creation tool with:
+- Brand name and description
+- **The Item Reference Sheet from Step 3A** as the primary product image reference
+- Any additional product images the user uploaded during intake
 
-**B. Select or generate the avatar (if mode requires).** TV Spot, Hyper Motion, Wild Card don't use avatars. UGC, Tutorial, Product Review, Unboxing, UGC Try-On, Pro Try-On all do. Pick from library based on Phase 2 archetype, or generate custom via Soul 2.0.
+Capture the product ID returned.
 
-**C. Submit the Marketing Studio generation.** Pass the prompt, mode, product ID, and avatar (if applicable). Replace `[product-id-when-set]` in the prompt with the actual product ID returned from Step A.
+**B. Select or generate the avatar (if mode requires).**
+- TV Spot, Hyper Motion, Wild Card → no avatar.
+- UGC, Tutorial, Product Review, Unboxing, UGC Try-On, Pro Try-On → avatar required.
+- Pick from library based on Phase 2 archetype, OR generate custom via **Soul 2.0** (Soul 2.0 is the correct model for avatars — use it here, NOT in Phase 3).
+
+**C. Submit the Marketing Studio generation — ALL Phase 3 assets must be attached AND labeled in the prompt.**
+
+This is the critical step. When submitting to Marketing Studio, you MUST:
+
+1. **Replace `[product-id-when-set]`** in the prompt with the actual product ID returned from Step A.
+
+2. **Attach all Phase 3 reference assets** as input images to the Marketing Studio submission:
+   - Item Reference Sheet (from 3A)
+   - All Scenery References (from 3B)
+   - Storyboard Composite (from 3C)
+   - Plus any user-uploaded references from intake
+
+3. **Label every attached reference in the prompt itself** so Seedance knows what each image is for. Add a labeled references block near the top of the prompt:
+
+```
+Reference assets attached for this generation:
+- @reference:item_sheet — Multi-angle reference of [Brand] [product]. Use these to lock product accuracy across all shots.
+- @reference:scenery_1 — [Setting description]. Use as visual anchor for shots set in this environment.
+- @reference:scenery_2 — [Setting description]. Use as visual anchor for shots set in this environment.
+- @reference:storyboard — [N]-panel temporal sequence map. Seedance: read this as the shot-by-shot structure for the final video. Each panel = one beat of the spot.
+- @reference:user_upload_1 — [Description]. [How to use it].
+[Continue for each attached reference]
+```
+
+This labeled reference block goes at the top of the Marketing Studio prompt, above the cinematic scene direction. The format above is the canonical structure — adapt asset names and descriptions to the specific generation.
+
+4. **Verify all expected references are attached before submitting.** If Phase 3 produced an item sheet, scenery refs, and a storyboard, but the submission only attaches 2 of those, STOP and re-attach the missing ones before submitting.
+
+5. **Select the correct mode preset** (TV Spot / UGC / Hyper Motion / etc.) based on Phase 2 mode decision.
+
+6. **Submit the generation** via the Higgsfield CLI/MCP video generation tool with: prompt + mode + product ID + avatar (if applicable) + all attached references.
 
 **D. Monitor and report.**
 
 ```
-Generation submitted. [Mode] running with [product/avatar setup]. ETA ~[time].
+Generation submitted.
+- Mode: [mode]
+- Product: [product name + ID]
+- Avatar: [avatar name, or "none — mode doesn't use avatars"]
+- References attached: item sheet + [N] scenery + storyboard + [N] user uploads
+- ETA: ~[time]
 
-[When complete]: Done. [Honest assessment — what worked, what may need a regen or post fix]
+[When complete]: Done. [Honest assessment — what worked, what may need a regen or post-production fix]
 ```
 
 ---
@@ -274,19 +396,30 @@ If user wants to iterate, loop to the appropriate phase. If they want a companio
 
 ---
 
-## TOOL ORCHESTRATION (HIGGSFIELD-EXCLUSIVE)
+## TOOL ORCHESTRATION (HIGGSFIELD-EXCLUSIVE, MODEL-LOCKED)
 
-All generation tools in this workflow are Higgsfield tools accessed via the Higgsfield MCP server. Do not route image or video generation through any non-Higgsfield provider — not OpenAI DALL-E, not Midjourney, not Stable Diffusion, not any other source. The user's brand kit, credits, and consistency all live in the Higgsfield ecosystem.
+All generation tools in this workflow are Higgsfield tools accessed via the Higgsfield MCP server / CLI. Do not route image or video generation through any non-Higgsfield provider — not OpenAI DALL-E (direct), not Midjourney, not Stable Diffusion, not any other source. The user's brand kit, credits, and consistency all live in the Higgsfield ecosystem.
 
-Tools used, in workflow order:
+**Strict model locks by phase:**
 
-- **Higgsfield image generation** (Soul 2.0, Nano Banana, GPT Image, Seedream, Flux — all served by Higgsfield) — Phase 3
-- **Higgsfield product management** (create, list, edit Marketing Studio products) — Phase 5A
-- **Higgsfield avatar management** (list available avatars, generate custom via Soul 2.0) — Phase 5B
-- **Higgsfield Marketing Studio video generation** (submit gen with prompt, mode, product, avatar) — Phase 5C
-- **Higgsfield generation status / display** (check job status, return completed media) — Phase 5D
+| Phase | Step | Purpose | Locked Model | Forbidden |
+|-------|------|---------|--------------|-----------|
+| 3A | Item Reference Sheet | Multi-angle product photography | **Nano Banana Pro** | Soul 2.0, generic models, text2image |
+| 3B | Scenery References | Environmental photo references | **Nano Banana Pro** | Soul 2.0, generic models, text2image |
+| 3C | Storyboard Composite | Multi-panel temporal sequence | **ChatGPT Image 2 (gpt-image-2)** | Nano Banana Pro for this step, Soul 2.0, others |
+| 5A | Product Creation | Create/load Marketing Studio product | Higgsfield product management tool | N/A |
+| 5B | Avatar Selection/Generation | Avatar for UGC-family modes | **Soul 2.0** (avatars only) | Nano Banana for avatars |
+| 5C | Video Generation | Final video gen | Higgsfield Marketing Studio (Seedance 2.0 backend) | Any non-Higgsfield video provider |
 
-If the Higgsfield MCP server isn't connected or a specific tool isn't responding, tell the user, explain what you'd normally do, and direct them to complete that step manually in the Higgsfield UI at higgsfield.ai. Never fall back to a non-Higgsfield image or video provider.
+**Key model assignments to memorize:**
+- **Nano Banana Pro** = product and scenery references (Phase 3A and 3B)
+- **ChatGPT Image 2** = storyboard composites only (Phase 3C) — takes the 3A/3B outputs as input images
+- **Soul 2.0** = avatars only (Phase 5B) — NEVER for reference image generation in Phase 3
+- **Seedance 2.0** = the video engine, accessed automatically when you submit a Marketing Studio generation in Phase 5C
+
+If the Higgsfield MCP server isn't connected or a specific tool isn't responding, tell the user, explain what you'd normally do, and direct them to complete that step manually in the Higgsfield UI at higgsfield.ai. Never fall back to a non-Higgsfield image or video provider. Never substitute a different model than the one locked for the phase.
+
+**CLI syntax reminder:** Use correct Higgsfield CLI syntax. Never invent flags. When in doubt, run `higgsfield --help`, `higgsfield generate --help`, or `higgsfield model list` to verify. Common conventions: positional model name (e.g., `higgsfield generate create nano_banana_pro`), `--aspect_ratio` for ratio, `--resolution` for quality, `--input_image` or `--reference` for input image refs (verify exact flags against current CLI).
 
 ---
 

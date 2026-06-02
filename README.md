@@ -223,7 +223,7 @@ Open an issue first if it's a bigger change so we can align on direction.
 
 ## Versioning
 
-**v1.2.0** — Critical Execution Contract header, sequential conversational intake, anti-improvisation guardrails
+**v1.3.0** — 3-step Phase 3 asset pipeline (Nano Banana Pro item sheet → Nano Banana Pro scenery → ChatGPT Image 2 storyboard) with labeled references attached to final video gen
 
 See [CHANGELOG.md](CHANGELOG.md) for the full history.
 

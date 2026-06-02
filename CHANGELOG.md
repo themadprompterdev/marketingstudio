@@ -5,7 +5,26 @@ All notable changes to this skill will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [1.2.0] — 2026-06-01
+## [1.3.0] — 2026-06-01
+
+### Added
+- **Phase 3 rebuilt as a 3-step sequential asset pipeline:**
+  - **Step 3A — Item Reference Sheet (Nano Banana Pro):** Multi-angle product reference sheet (4-6 angles) so the product is visually locked across every downstream asset.
+  - **Step 3B — Scenery References (Nano Banana Pro):** 2-4 environmental reference images matching the Phase 2 aesthetic anchor.
+  - **Step 3C — Storyboard Composite (ChatGPT Image 2):** Multi-panel storyboard (5-6+ panels for 15s, more for longer spots) that takes the 3A item sheet and 3B scenery refs as INPUT images and composes the full temporal shot sequence.
+- **Strict per-phase model locks** in a quick-reference table:
+  - Nano Banana Pro = item and scenery references only
+  - ChatGPT Image 2 = storyboard composites only (takes 3A/3B as inputs)
+  - Soul 2.0 = avatars only (Phase 5B) — NEVER in Phase 3
+  - Seedance 2.0 = video engine (accessed via Marketing Studio in Phase 5C)
+- **Phase 5C labeled reference block** — when submitting the final Marketing Studio video generation, all Phase 3 outputs MUST be attached as input references AND labeled in the prompt itself (e.g., `@reference:item_sheet`, `@reference:scenery_1`, `@reference:storyboard`) so Seedance knows what each image is for.
+- **Phase 3 → Phase 4 confirmation gate** — after all Phase 3 assets generate, present them to the user for review and wait for confirmation before moving to prompt crafting. This is the most important creative review gate in the workflow.
+- **CLI syntax reminder** in the Tool Orchestration section to prevent invented flags.
+
+### Why
+v1.2.0 fixed the "skill loaded but not followed" problem. Real production runs after that revealed Phase 3 was too vague — agents were spraying generations across multiple wrong models (Soul 2.0 for product shots, generic text2image, etc.) and not building a coherent reference asset set. v1.3.0 makes Phase 3 a real production pipeline: lock the product visually first (3A), then lock the environments (3B), then compose the narrative storyboard that uses both as inputs (3C). All assets then get attached and labeled in the final video gen so Seedance has full visual context for what each reference is for.
+
+
 
 ### Added
 - **Critical Execution Contract** header at the top of SKILL.md with explicit "MUST read first, every time" instructions to prevent agents from improvising the workflow from vague memory
@@ -50,6 +69,7 @@ Real-world deployment revealed two issues:
 - Word count discipline (~40 word dialogue cap for UGC)
 - Seedance storyboard-as-reference behavior documentation
 
+[1.3.0]: https://github.com/themadprompterdev/marketingstudio/releases/tag/v1.3.0
 [1.2.0]: https://github.com/themadprompterdev/marketingstudio/releases/tag/v1.2.0
 [1.1.0]: https://github.com/themadprompterdev/marketingstudio/releases/tag/v1.1.0
 [1.0.0]: https://github.com/themadprompterdev/marketingstudio/releases/tag/v1.0.0
